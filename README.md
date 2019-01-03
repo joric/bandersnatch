@@ -1,6 +1,6 @@
 # Bandersnatch
 
-It's dead simple, made in JavaScript in a few minutes. It might be infinitely improved (e.g. imagine adding interactive timeline chart) could be much better than the Netflix version itself.
+You gotta download two json files - bandersnatch.json and SegmentMap.json, add first lines (bandersnatch= and SegmentMap= accordingly), save them as *.js (html can't access json content without a server) then open html file in the browser (everything should be in the same folder).
 
 ## References
 

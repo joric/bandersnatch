@@ -5,101 +5,129 @@
 <title>Bandersnatch</title>
 <style>
 body { margin: auto; text-align: center; margin-top: 50px; }
-#controls { margin: auto; width: 1280px; }
-#buttons { margin: auto; width: 1280px; }
-#left,#right { display: inline; width: 50%; height: 50px; text-align: center; font: 30px sans-serif; }
-#left { float: left; }
-#right { float: right; }
-</style>
-<script>
-chapters = {
-	"00:00:00":"Intro",
-	"00:00:30":"Film begins 8:30 am, 9 july 1984",
-	"00:02:16":"Breakfast? SUGAR PUFFS / FROSTIES",
-	"00:02:34":"Breakfast? SUGAR PUFFS",
-	"00:03:12":"Music? THOMPSON TWINS / NOW 2",
-	"00:03:27":"Music? THOMPSON TWINS",
-	"00:07:49":"Offer? ACCEPT / REFUSE",
-	"00:08:01":"Offer? ACCEPT",
-	"00:09:33":"rewind",
-	"00:11:52":"Offer? REFUSE",
-	"00:16:56":"Talk about Mum? YES / NO",
-	"00:17:10":"Talk about Mum? YES",
-	"00:19:20":"Talk about Mum? NO",
-	"00:20:12":"Vinyl? PHAEDRA / BERMUDA TRIANGLE",
-	"00:20:27":"Vinyl? PHAEDRA",
-	"00:23:25":"Anger at dad? THROW TEA OVER COMPUTER / SHOUT AT DAD",
-	"00:23:35":"Anger at dad? THROW TEA OVER COMPUTER",
-	"00:24:47":"Anger at dad? SHOUT AT DAD",
-	"00:26:09":"Action? VISIT DR. HAYNES / FOLLOW COLIN",
-	"00:26:17":"Action? VISIT DR. HAYNES",
-	"00:28:52":"TAKE PILLS",
-	"00:31:05":"THROW PILLS AWAY",
-	"00:35:10":"DESTROY COMPUTER",
-	"00:35:31":"rewind",
-	"00:36:34":"HIT DESK",
-	"00:49:34":"Take drug?",
-	"00:49:44":"TAKE DRUG",
-	"00:54:06":"Who jumps?",
-	"00:54:14":"COLIN JUMPS",
-	"00:55:29":"rewind",
-	"00:56:31":"STEFAN JUMPS",
-	"00:59:14":"PICK UP FAMILY PHOTO",
-	"01:00:17":"Give me a sign!",
-	"01:01:33":"KILL DAD",
-	"01:03:51":"BURY BODY",
-	"01:04:48":"Where's Colin?",
-	"01:05:04":"NO IDEA",
-	"01:06:13":"Dog digs up body",
-	"01:06:24":"Tuckersoft fails (Stefan arrested)",
-	"01:08:08":"rewind",
-	"01:11:02":"CHOP UP BODY",
-	"01:12:22":"Bandersnatch gets 5/5. Credits.",
-	"01:15:27":"rewind",
-	"01:16:03":"PICK UP BOOK",
-	"01:18:01":"TOY",
-	"01:19:46":"Are you coming?",
-	"01:19:51":"YES",
-	"01:20:34":"Dies in the chair with therapist",
-	"01:21:22":"rewind",
-	"01:22:32":"PAC",
-	"01:25:47":"Hits dad",
-	"01:26:04":"Give me a sign",
-	"01:26:19":"PACS",
-	"01:27:20":"Kills dad",
-	"01:29:59":"Receptionist calls police. 2.5 stars.",
-	"01:30:44":"Breakfast? FROSTIES",
-	"01:31:37":"Music? NOW 2",
-	"01:36:09":"Work with Tuckersoft?",
-	"01:36:15":"rewind",
-	"01:38:34":"ACCEPT TUCKERSOFT",
-	"01:44:32":"THROW PILLS AWAY",
-	"01:49:08":"TAKE FAMILY PHOTO",
-	"01:49:51":"Go through mirror",
-	"01:51:39":"Therapist/Dad fighting scene",
-	"01:52:30":"rewind",
-	"01:53:21":"rewind",
-	"01:55:09":"rewind ",
-	"01:59:02":"PICKS UP BOOK",
-	"02:00:59":"JDF",
-	"02:56:44":"mirror cracks",
-	"03:14:52":"Vinyl? BERMUDA TRIANGLE",
-	"04:05:39":"Colin visits Stefan",
-	"04:07:40":"Stefan kills Colin",
-	"04:10:59":"Colin spikes tea",
-	"04:16:50":"fight scene with dad"
-};
+.frame { margin: auto; height: 70%; width: 70%; }
+video { width: 100%; height: 100%; }
+.controls { margin: auto; width: 100%; }
 
-ts = {};
+ul {
+    display: flex;
+    align-items: stretch;
+    justify-content: space-around;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+	font: 20px sans-serif;
+}
+
+li {
+    display: block;
+    flex: 0 1 auto;
+    list-style-type: none;
+}
+
+</style>
+
+<!-- downloaded from https://gist.github.com/jonluca/860f3f445e7d84054822276fd058301a/, added jsonp first line: callback= -->
+<script src="bandersnatch.js"></script>
+
+<script>
+
+var data = callback.videos['80988062'].interactiveVideoMoments.value;
+var choicePoints = data.choicePointNavigatorMetadata.choicePointsMetadata.choicePoints;
+var segmentGroups = data.segmentGroups;
+var momentsBySegment = data.momentsBySegment;
+
+function ms2str(ms) {
+	return new Date(ms).toUTCString().split(' ')[4];
+}
+
+function getSegmentMs(segmentId) {
+	if (segmentId.startsWith('nsg-')) {
+		segmentGroupId = segmentId.substring(4);
+		segs = segmentGroups[segmentGroupId];
+		for (seg of segs) {
+			console.log(seg);
+			return getSegmentMs(seg);
+		}
+	} else {
+		return momentsBySegment[segmentId][0].startMs;
+	}
+}
+
+function getChoices(r) {
+	var counter = 0;
+	var caption = '';
+	for (i in r.choices) {
+		var text = r.choices[i].text
+		text += '('+r.choices[i].id+')';
+		caption += ' ';
+		caption += counter==r.defaultChoiceIndex ? '['+text+']' : text;
+		counter ++;
+	}
+
+	if (caption) {
+		caption += ' timeout ';
+		caption += ms2str(r.choiceActivationThresholdMS);
+	}
+
+	return caption;
+}
+
+function parseMoments() {
+
+	var segments = []
+	for(const [k, v] of Object.entries(data.momentsBySegment)) { segments.push(k); }
+	segments.sort();
+
+	c = document.getElementById("chapters");
+	for (segmentId of segments) {
+		var r = momentsBySegment[segmentId][0];
+		var caption = '';
+		caption += ms2str(r.startMs);
+		caption += ' ';
+		caption += segmentId;
+		caption += ' ';
+		caption += getChoices(r);
+		c.add(new Option(caption, segmentId));
+	}
+}
+
+function parseChoicePoints() {
+
+	var segments = []
+	for(const [k, v] of Object.entries(choicePoints)) { segments.push(k); }
+	segments.sort();
+	console.log(segments);
+
+	var c = document.getElementById("chapters");
+
+	for (segmentId of segments) {
+		var r = choicePoints[segmentId];
+		var ms = r.startTimeMs;
+		var caption = segmentId + ' (' + ms2str(ms) +') '+ r.description + ' ' + r.choices.join(' / ');
+		c.add(new Option(caption, segmentId));
+	}
+
+	//data = callback.videos['80988062'].interactiveVideoMoments.value.momentsBySegment;
+	//console.log(data);
+/*
+	data = callback.videos['80988062'].interactiveVideoMoments.value.choicePointNavigatorMetadata.choicePointsMetadata.choicePoints;
+	for(const [k, v] of Object.entries(data)) {
+		var ms = v.startTimeMs + 10*1000;
+		var caption = v.description + ' ' + ms2str(ms) + ' ' + k + ' ' + ' ' + v.choices[0]+' / ' +v.choices[1];
+		document.getElementById("chapters").add(new Option(caption, ms));
+	}
+*/
+
+}
+
 
 function run() {
-	v = document.getElementById("video");
+	console.log(data);
 	c = document.getElementById("chapters");
-	for(const [key, value] of Object.entries(chapters)) {
-		ts[key] = new Date('1970-01-01T' + key + 'Z').getTime() / 1000;
-		c.add(new Option(key + ' ' + value, ts[key]));
-	}
-	cb();
+	parseMoments();
+	//parseChoicePoints();
+	//cb();
 }
 
 function findTime(s) {
@@ -110,51 +138,86 @@ function findTime(s) {
 	return 0;
 }
 
-function makeURL(q, s) {
-	var t = findTime(q+' '+s);
-	return t ? '<a href="javascript:jump('+t+')">'+s+'</a>' : '';
+function makeURL(segmentId, s) {
+	return '<a href="javascript:jump('+t+')">'+s+'</a>';
 }
 
 function ask() {
-	var text = c[c.selectedIndex].text;
-	var r = /^[^ ]+ (.+\?) (.+) \/ (.+)$/.exec(text);
-	a = ['','',''];
-	if (r) {
-		a = [r[1], makeURL(r[1], r[2]), makeURL(r[1], r[3])];
+	var segmentId = c[c.selectedIndex].value;
+
+	a = ['', '', '']
+
+	data = callback.videos['80988062'].interactiveVideoMoments.value.momentsBySegment;
+	var r = data[segmentId][0];
+
+	var ul = document.getElementById("choices");
+	ul.innerHTML='';
+	for (i in r.choices) {
+		var li = document.createElement("li");
+		var a = document.createElement("a");
+		a.textContent = r.choices[i].text;
+		a.setAttribute('href', 'javascript:jump("'+r.choices[i].id+'")');
+		li.appendChild(a);
+		ul.appendChild(li);
 	}
-	document.getElementById("left").innerHTML=a[1];
-	document.getElementById("right").innerHTML=a[2];
 }
 
 function cb() {
-	var t = v.currentTime;
+	var ms = document.getElementById("video").currentTime * 1000.0;
+	var c = document.getElementById("chapters");
 	var index = c.selectedIndex;
-	[].forEach.call(c, function (x, i) { if (t>=x.value) index = i; });
+	[].forEach.call(c, function (x, i) {
+		if (ms>=getSegmentMs(x.value))
+			index = i;
+	});
+
 	if (c.selectedIndex != index) {
 		c.selectedIndex = index;
 		ask();
 	}
+
 	setTimeout(cb, 100);
 }
-function jump(t) {
-	v.currentTime = t;
-	ask();
+
+function update() {
+	var ms = document.getElementById("video").currentTime * 1000.0;
+
+	var index = c.selectedIndex;
+	[].forEach.call(c, function (x, i) {
+		if (ms >= getSegmentMs(x.value))
+			index = i;
+	});
+
+	if (c.selectedIndex != index) {
+		c.selectedIndex = index;
+	}
 }
+
+function jump(segmentId) {
+	console.log('Jump to '+segmentId);
+	var ms = getSegmentMs(segmentId);
+	document.getElementById("video").currentTime = ms / 1000.0;
+	ask();
+	//update();
+}
+
 </script>
 </head>
 <body onload=run()>
 <div>
-	<div id="frame">
+	<div class="frame">
+		<select id="chapters" onchange=jump(this[this.selectedIndex].value)><option value="">Select episode</option></select>
 		<video id="video" autoplay controls src="Black.Mirror.Bandersnatch.2018.720p.WEB-DL.x264.DUAL.mkv"></video>
-		<div id="controls">
+		<div class="controls">
 			<div id="progress"></div>
-			<div id="buttons">
-				<div id="left"></div>
-				<div id="right"></div>
+			<div class="buttons">
+				<ul id="choices">
+				<li>.</li>
+				<li>.</li>
+				</ul>
 			</div>
 		</div>
 	</div>
-	<br/><select id="chapters" onchange=jump(this[this.selectedIndex].value)></select>
 </div>
 </body>
 </html>
