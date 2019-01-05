@@ -32,12 +32,54 @@ var currentSegment;
 var currentMoment;
 var nextSegment = null;
 var momentSelected = null;
+var persistentState = bv.stateHistory;
+var globalChoices = {};
+
+
+function generateJs(cond) {
+	if (cond[0] == 'persistentState') {
+		return '!!persistentState["' + cond[1] + '"]';
+	} else if (cond[0] == 'not') {
+		return '!(' + generateJs(cond[1]) + ')';
+	} else if (cond[0] == 'and') {
+		var conds = [];
+		for (var i = 1; i < cond.length; i++) {
+			conds.push('(' + generateJs(cond[i]) + ')');
+		}
+		return '(' + conds.join(' && ') + ')';
+	} else if (cond[0] == 'or') {
+		var conds = [];
+		for (var i = 1; i < cond.length; i++) {
+			conds.push('(' + generateJs(cond[i]) + ')');
+		}
+		return '(' + conds.join(' || ') + ')';
+	} else {
+		console.log('unsupported condition!', cond);
+		return 'true';
+	}
+}
+
+function checkPrecondition(segmentId) {
+	let precondition = bv.preconditions[segmentId];
+
+	if (precondition) {
+		let cond = generateJs(precondition);
+		let match = eval(cond);
+
+		console.log(cond, '==', match);
+
+		return match;
+	}
+
+	return true;
+}
 
 function findSegment(id) {
 	if (id.startsWith('nsg-')) {
 		id = id.substr(4);
 	}
 	if (SegmentMap.segments[id]) {
+		// check precondition
 		return id;
 	}
 
@@ -46,9 +88,11 @@ function findSegment(id) {
 			if (v.segmentGroup) {
 				return findSegment(v.segmentGroup);
 			} else if (v.segment) {
+				// check precondition
 				return v.segment;
 			} else {
-				return v;
+				if (checkPrecondition(v))
+					return v;
 			}
 		}
 	}
@@ -144,9 +188,12 @@ function addChoices(r) {
 	index = 0;
 
 	for (x of r.choices) {
+		console.log(x.id, 'choice saved');
+		globalChoices[x.id] = x;
+
 		var caption = r.defaultChoiceIndex==index ? '['+x.text+']' : x.text;
 		addItem(ul, caption, 'javascript:choice("'+
-			(x.segmentId ? x.segmentId : (x.sg ? x.sg : x.id))+'", "'+x.text+'")');
+			(x.segmentId ? x.segmentId : (x.sg ? x.sg : x.id))+'", "'+x.text+'", "'+x.id+'")');
 		index++;
 	}
 
@@ -236,18 +283,52 @@ function seek(ms) {
 	document.getElementById("video").currentTime = ms / 1000.0;
 }
 
-function choice(choiceId, text) {
+function choice(choiceId, text, id) {
 	var segmentId = findSegment(choiceId);
 	console.log('choice', choiceId, 'nextSegment', segmentId);
+	applyImpression(globalChoices[id]);
 	setNextSegment(segmentId, text);
 	momentSelected = choiceId;
 	addChoices(0);
+}
+
+function applyImpression(obj) {
+	if (!obj) {
+		return;
+	}
+
+	impressionData = obj.impressionData;
+
+	if (impressionData && impressionData.type == 'userState') {
+		for (const [variable, value] of Object.entries(impressionData.data.persistent)) {
+			console.log('persistentState set', variable, '=', value);
+			persistentState[variable] = value;
+		}
+	}
+}
+
+function applyPlaybackImpression(segmentId) {
+	let moments = momentsBySegment[segmentId];
+
+	if (!moments) {
+		console.log('warning - no moments');
+		return;
+	}
+
+	for (moment of moments) {
+		if (moment.type != 'notification:playbackImpression') {
+			continue;
+		}
+
+		applyImpression(moment);
+	}
 }
 
 function playSegment(segmentId) {
 	if (segmentId=="undefined")
 		segmentId = '1A';
 	console.log('playSegment', segmentId);
+	applyPlaybackImpression(segmentId);
 	location.hash = segmentId;
 	document.title = 'Bandersnatch - Chapter ' + segmentId;
 	document.getElementById("video").ontimeupdate = function() {};
