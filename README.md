@@ -1,4 +1,4 @@
-# Bandersnatch
+# Black Mirror: Bandersnatch (interactive version)
 
 ![](https://i.imgur.com/vvdxUvy.jpg)
 
@@ -19,6 +19,11 @@ add first lines
 * <kbd>←</kbd> - Jump to the previous segment
 * <kbd>Space</kbd> - Toggle play and pause
 
+## FAQ
+
+* Q. What's up with the 5-hour torrented version? How it was made?
+* A. This is an original unedited production footage from Netflix that matches all their timestamps up to a millisecond.
+
 ## References
 
 * [Reddit: GitHub - joric/bandersnatch: Black Mirror: Bandersnatch (interactive version)](https://redd.it/adnn2h)
@@ -26,4 +31,4 @@ add first lines
 * [Reddit: Pearl Ritman's Advanced Evaluation (also: Netflix Interactive Video Moments revealed!)](https://www.reddit.com/r/Bandersnatch/comments/aaqt1y/pearl_ritmans_advanced_evaluation_also_netflix/)
 * [Reddit: Full Segment Map, Showing IDs, Choices, Start Times and Default Choices (SegmentMap.json)](https://www.reddit.com/r/Bandersnatch/comments/abnwmx/full_segment_map_showing_ids_choices_start_times/)
 * [Jon Engelsman: Through the Looking-Glass at Netflix (segmentGroups explained)](http://engelsjk.com/2018/12/30/Through-the-Looking-Glass-at-Netflix/)
-
+* [Hosted version by mehotkhan (Bandersnatch Interactive Player)](https://mehotkhan.github.io/BandersnatchInteractive/)
