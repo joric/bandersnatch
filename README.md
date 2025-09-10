@@ -2,7 +2,7 @@
 
 ## Disclaimer
 
-I do not own bandersnatch trademark, all rights belong to its owners and this project does not contain any copyrighted data at all.
+I do not own the Bandersnatch trademark; all rights belong to its owners. This project does not contain any copyrighted material and does not stream or download any content.
 
 ## Setup
 
@@ -31,5 +31,6 @@ If you're experiencing problems with local setup I recommend hosted version (jus
 * [Reddit: Pearl Ritman's Advanced Evaluation (also: Netflix Interactive Video Moments revealed!)](https://www.reddit.com/r/Bandersnatch/comments/aaqt1y/pearl_ritmans_advanced_evaluation_also_netflix/)
 * [Reddit: Full Segment Map, Showing IDs, Choices, Start Times and Default Choices (SegmentMap.json)](https://www.reddit.com/r/Bandersnatch/comments/abnwmx/full_segment_map_showing_ids_choices_start_times/)
 * [Jon Engelsman: Through the Looking-Glass at Netflix (segmentGroups explained)](http://engelsjk.com/2018/12/30/Through-the-Looking-Glass-at-Netflix/)
+
 
 
